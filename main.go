@@ -14,6 +14,12 @@ func main() {
 		newrelic.ConfigAppName("test_app"),
 		newrelic.ConfigLicense(os.Getenv("NEWRELIC_LICENSE_KEY")),
 		newrelic.ConfigDistributedTracerEnabled(true),
+		func(cfg *newrelic.Config) {
+			cfg.ErrorCollector.IgnoreStatusCodes = []int{
+				http.StatusBadRequest,
+				http.StatusNotFound,
+			}
+		},
 	)
 	if err != nil {
 		log.Fatalf("newrelic init app error: %s", err.Error())
@@ -34,6 +40,20 @@ func handler(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, "XD")
 	case "200":
 		return c.String(http.StatusOK, "ok")
+	case "func":
+		if err := BrokenFunc(); err != nil {
+			nrecho.FromContext(c).NoticeError(err)
+			return c.String(http.StatusInternalServerError, "XD")
+		}
+		return c.String(http.StatusOK, "ok")
 	}
 	return c.String(http.StatusBadRequest, "query is not passed e.g. q?=200")
+}
+
+func BrokenFunc() error {
+	return newrelic.Error{
+		Message:    "Func is broken",
+		Class:      "FuncError",
+		Attributes: map[string]interface{}{},
+	}
 }
