@@ -52,7 +52,7 @@ func handler(c echo.Context) error {
 
 func BrokenFunc() error {
 	return newrelic.Error{
-		Message:    "Func is broken",
+		Message:    "BrokenFunc is broken",
 		Class:      "FuncError",
 		Attributes: map[string]interface{}{},
 		Stack:      newrelic.NewStackTrace(),
