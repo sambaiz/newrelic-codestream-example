@@ -55,5 +55,6 @@ func BrokenFunc() error {
 		Message:    "Func is broken",
 		Class:      "FuncError",
 		Attributes: map[string]interface{}{},
+		Stack:      newrelic.NewStackTrace(),
 	}
 }
